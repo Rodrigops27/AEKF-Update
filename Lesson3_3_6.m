@@ -9,6 +9,7 @@
 % Data file contains the variables: model dT t u x z
 % Note that this is a longer simulation of the model than we have used before.
 % The longer simulation gives time to adapt SigmaV and SigmaW
+clear; % 1-line Update to ensure clean start.
 load readonly/simOutLong.mat
 rms = @(x) sqrt(mean((x).^2)); % define root-mean-squared function
 
@@ -54,45 +55,8 @@ ind = find(abs(errseg(:))>boundseg(:));
 fprintf('Time error outside bounds = %g%%\n',length(ind)/length(boundseg(:))*100);
 
 %% Plot the states with confidence bounds
-figure(1)
-t2 = [tseg fliplr(tseg)]; % Prepare for plotting bounds via "fill"
-x2 = [xhatseg-boundseg fliplr(xhatseg+boundseg)];
-h1a = fill(t2,x2(1,:),'b',"FaceAlpha",0.05); hold on; grid on;
-fill(t2,x2(2,:),'b',"FaceAlpha",0.05);
-
-h2 = plot(tseg,xseg',tseg,xhatseg','--'); ylim([-0.13 0.13]);
-legend([h2;h1a],{'True position','True velocity','AEKF Position estimate',...
-    'AEKF Velocity estimate','Confidence bounds'},'Location','BestOutside');
-title('Demonstrating state estimates for AEKF');
-xlabel('Time (s)'); ylabel('State (m or m/s)');
-
-figure(2)
-fill([tseg fliplr(tseg)],[-boundseg(1,:) fliplr(boundseg(1,:))],'b',...
-    "FaceAlpha",0.05); hold on; grid on;
-plot(tseg,errseg(1,:),'b');
-title('Position estimation error for AEKF');
-xlabel('Time (s)'); ylabel('Error (m)');
-
-figure(3)
-fill([tseg fliplr(tseg)],[-boundseg(2,:) fliplr(boundseg(2,:))],'b',...
-    "FaceAlpha",0.05); hold on; grid on;
-plot(tseg,errseg(2,:),'b'); ylim([-0.05 0.05]);
-title('Velocity estimation error for AEKF');
-xlabel('Time (s)'); ylabel('Error (m/s)');
-
-% I plot every tenth point for speed
-figure(4)
-h1 = plot(t(1:10:end)/3600,Qstore(1,1:10:end)); title('Evolution of estimate of SigmaW'); grid on
-xlabel('Time (h)');
-ylabel('SigmaW values'); hold on
-h2 = plot(t(1:10:end)/3600,Qstore(3:4,1:10:end));
-xlim([0 3]);
-legend([h1;h2],{'(1,1) component','(1,2)=(2,1) component','(2,2) component'},'location','bestOutside');
-
-figure(5)
-h1=plot(t(1:10:end)/3600,Rstore(1:10:end)); title('Evolution of estimate of SigmaV'); grid on
-xlabel('Time (h)'); ylabel('SigmaV values')
-ylim([0 1.3e-3]); xlim([0 3]);
+% 1-line Update:
+plotting; % refactored for readiblity
 
 %% AEKF Functions
 % AEKF initialization function, called once every simulation
@@ -132,6 +96,8 @@ Ahat = [1 dT; -model.k1*dT/model.m-3*model.k2*dT*xhat(1)^2/model.m ...
 xhat = [1 dT; -model.k1*dT/model.m 1-model.b*dT/model.m]*xhat + ...
     [0; -model.k2*dT*xhat(1)^3/model.m] + [0; dT/model.m]*priorU;
 
+% 1-line Update:
+Sx_prev = SigmaX; % To use prev step.
 % Step 1b: Error covariance time update
 %          sigmaminus(k) = Ahat(k-1)*sigmaplus(k-1)*Ahat(k-1)' + ...
 %                          Bhat(k-1)*sigmawtilde*Bhat(k-1)'
@@ -158,24 +124,67 @@ SigmaX = SigmaX - L*SigmaZ*L';
 HH = V*S*V';
 SigmaX = (SigmaX + SigmaX' + HH + HH')/4;
 
-% For adapting SigmaW
+% Update:
+%% Testing adaptation techniques
 alpha = 0.99; % simple filter pole location
-newW = (L*mu)*(L*mu)';
-aekfData.Wstore = [aekfData.Wstore(:,2:end), newW(:)]; % Buffer result
-if aekfData.iter > size(aekfData.Wstore,2) % Smooth with buffer AND filter
 
-    newW = sum(aekfData.Wstore,2); % WARNING: Should be mean and not sum
+aekfData.mode = 3;
+% 1: Original (sum), 2: Full def. of SigmaW, 3: Full def. +Higham
+switch aekfData.mode
+    case 1 % Original
+        % SigmaW: cumsum + filter
+        newW = (L*mu)*(L*mu)';
+        aekfData.Wstore = [aekfData.Wstore(:,2:end), newW(:)]; % Buffer result
+        if aekfData.iter > size(aekfData.Wstore,2) % Smooth with buffer AND filter
+            newW = sum(aekfData.Wstore,2); % WARNING: Should be mean and not sum
+            aekfData.SigmaW(:) = alpha*aekfData.SigmaW(:) + (1-alpha)*newW;
+        end
+        % For adapting SigmaV
+        newV = r*r' + Chat*SigmaX*Chat';
+        aekfData.Vstore = [aekfData.Vstore(2:end), newV(:)]; % Buffer result
+        if aekfData.iter > size(aekfData.Vstore,2) % Smooth with buffer AND filter
+            newV = mean(aekfData.Vstore,2);
+            aekfData.SigmaV(:) = alpha*aekfData.SigmaV(:) + (1-alpha)*newV;
+        end
 
-    aekfData.SigmaW(:) = alpha*aekfData.SigmaW(:) + (1-alpha)*newW;
+    case 2 % GenFilt + Std SigmaV
+        % SigmaW: MAvg + filter
+        newW = (L*mu)*(L*mu)' + (SigmaX - Ahat*Sx_prev*Ahat'); % Generalized
+        aekfData.Wstore = [aekfData.Wstore(:, 2:end), newW(:)];
+        if aekfData.iter > size(aekfData.Wstore, 2)
+            newW = mean(aekfData.Wstore, 2);
+            aekfData.SigmaW(:) = alpha * aekfData.SigmaW(:) + (1 - alpha) * newW;
+        end
+        % Std adapting SigmaV
+        newV = r*r' + Chat*SigmaX*Chat';
+        aekfData.Vstore = [aekfData.Vstore(2:end), newV(:)]; % Buffer result
+        if aekfData.iter > size(aekfData.Vstore,2) % Smooth with buffer AND filter
+            newV = mean(aekfData.Vstore,2);
+            aekfData.SigmaV(:) = alpha*aekfData.SigmaV(:) + (1-alpha)*newV;
+        end
+
+    case 3 % GenFilt + Std SigmaV
+        % SigmaW: Higham + MAvg + filter
+        newW = (L*mu)*(L*mu)' + (SigmaX - Ahat*Sx_prev*Ahat'); % Generalized
+        % Robustifying
+        [~,S,V] = svd(newW); % Implement Higham method to help robustness
+        HH = V*S*V';
+        newW = (newW + newW' + HH + HH')/4;
+
+        aekfData.Wstore = [aekfData.Wstore(:, 2:end), newW(:)];
+        if aekfData.iter > size(aekfData.Wstore, 2)
+            newW = mean(aekfData.Wstore, 2);
+            aekfData.SigmaW(:) = alpha * aekfData.SigmaW(:) + (1 - alpha) * newW;
+        end
+        % Std adapting SigmaV
+        newV = r*r' + Chat*SigmaX*Chat';
+        aekfData.Vstore = [aekfData.Vstore(2:end), newV(:)]; % Buffer result
+        if aekfData.iter > size(aekfData.Vstore,2) % Smooth with buffer AND filter
+            newV = mean(aekfData.Vstore,2);
+            aekfData.SigmaV(:) = alpha*aekfData.SigmaV(:) + (1-alpha)*newV;
+        end
 end
-
-% For adapting SigmaV
-newV = r*r' + Chat*SigmaX*Chat';
-aekfData.Vstore = [aekfData.Vstore(2:end), newV(:)]; % Buffer result
-if aekfData.iter > size(aekfData.Vstore,2) % Smooth with buffer AND filter
-    newV = mean(aekfData.Vstore,2);
-    aekfData.SigmaV(:) = alpha*aekfData.SigmaV(:) + (1-alpha)*newV;
-end
+% end of Update.
 
 % Save data in ekfData structure for next time...
 aekfData.priorU = uk;
