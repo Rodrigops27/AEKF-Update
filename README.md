@@ -66,7 +66,7 @@ This approach applies Higham’s algorithm to maintain numerical stability.
 
 - Fraser, C. T., & Ulrich, S. (2021). *Adaptive extended Kalman filtering strategies for spacecraft formation relative navigation*. Acta Astronautica, 178, 700–721. https://doi.org/10.1016/j.actaastro.2020.09.014
 
-- *Nonlinear Kalman Filters and Parameter Estimation*, Coursera. Offered by the University of Colorado Boulder. Retrieved from [https://www.coursera.org/programs/la-triada-pyiv5/learn/nonlinear-kalman-filters-parameter-estimation](https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation)
+- *Nonlinear Kalman Filters and Parameter Estimation*, Coursera. Offered by the University of Colorado Boulder. Retrieved from [https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation](https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation)
 
 ---
 
