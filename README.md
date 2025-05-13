@@ -39,16 +39,19 @@ with m=50, b=2, k1=4, k2=60 and d=0.25.
 ## Results
 
 ### 1. Benchmark (original formulation using cumulative sum instead of moving average):
-- RMS state estimation error: `0.00425548`
-- Time error outside bounds: `0.34965%`
+- RMS state estimation error: `0.00969069`
+- Time error outside bounds: `0.14985%`
 
 ### 2. Full expression for Q with same smoothing technique:
-- RMS state estimation error: `0.0023486`
+- RMS state estimation error: **`0.0023486`**
 - Time error outside bounds: `0.2997%`
 
 ### 3. Full expression with Higham method for positive definiteness:
-- RMS state estimation error: `0.00969069`
-- Time error outside bounds: `0.14985%`
+- RMS state estimation error: **`0.00425548`**
+- Time error outside bounds: `0.34965%`
+
+* The metric 'time error outside bounds' is more representative since the size of the bounds depend on the error covariances matrices. A bigger error covariance estimate will indicate a bigger confidence bound. 
+By using the 'full expression for adapting Q' (2 & 3), their bounds are smaller than the benchmark (1). This can be seen in the following figures.
 
 ---
 
