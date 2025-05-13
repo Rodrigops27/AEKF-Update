@@ -1,7 +1,7 @@
 # Adaptive Extended Kalman Filter Update
 
 This repository contains an improved version of an AEKF algorithm originally developed by Prof. Gregory L. Plett.  
-The original code is preserved in this repository (see `/legacy` or commit history), and the updates made here include:
+The original code is preserved in this repository (see commit history), and the updates made here include:
 - Use of the full expression for the adaptation of the process noise covariance
 - Improved numerical stability
 - Modularized plotting code
@@ -21,6 +21,18 @@ This simplification likely serves to preserve the **positive definiteness** of t
 However, that “steady-state difference” usually stabilize at an application-specific value **greater than zero**.
 
 There may exist other Kalman Filter expression that avoid this subtractive term altogether.
+
+---
+
+## Test
+The key update was benchmarked with the nonlinear spring mass damper system:
+![StateEq](assets/cse.png)
+![OutputEq](assets/coe.png)
+
+Designed and simulated by Prof. Plett in Simulink as:
+![SysSim](assets/simu.png)
+
+with m=50, b=2, k1=4, k2=60 and d=0.25.
 
 ---
 
