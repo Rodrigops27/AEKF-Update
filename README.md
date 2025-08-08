@@ -19,15 +19,19 @@ The full update for the process noise covariance matrix is:
 
 ### A)  Common Steady‑State Form (from Eq. 37 [^1])
 
-$\hat{\mathbf{Q}}_{k}^{\text{ss}} = \mathbf{K}_{k}
-\nu_i\nu_i^{\top}\mathbf{K}_{k}^{\top}$
+$
+\hat{\mathbf{Q}}_{k}^{\text{ss}} = \mathbf{K}_{k}
+\nu_i\nu_i^{\top}\mathbf{K}_{k}^{\top}
+$
 
 This simplification likely serves to preserve the **positive definiteness** of the process noise covariance matrix.  
 
 ### B)  Full Maximum‑Likelihood Expression Implemented Here (from Eq. 36 [^1])
 
-$\hat{\mathbf{Q}}_{k} = 
-\mathbf{K}_{i} \nu_{i} \nu_{i}^{\top} \mathbf{K}_{i}^{\top} + ( \mathbf{P}^{+}_{i} - \mathbf{\Phi}_{i-1} \mathbf{P}^{+}_{i-1} \mathbf{\Phi}_{i-1}^{\top} ) $
+$$
+\hat{\mathbf{Q}}_{k} = 
+\mathbf{K}_{i} \nu_{i} \nu_{i}^{\top} \mathbf{K}_{i}^{\top} + ( \mathbf{P}^{+}_{i} - \mathbf{\Phi}_{i-1} \mathbf{P}^{+}_{i-1} \mathbf{\Phi}_{i-1}^{\top} )
+$$
 
 However, that “steady-state difference”, exposed with parenthesis, usually stabilize at an application-specific value **greater than zero**.
 
@@ -49,13 +53,13 @@ with m=50, b=2, k1=4, k2=60 and d=0.25.
 
 | Test Case                         | RMS Error | Time Outside ±2σ |
 |----------------------------------|-----------|------------------|
-| **Baseline – steady-state**[^a]  | 9.69 × 10⁻³ | 0.15 %     |
-| **Full $\mathbf Q$**             | 2.35 × 10⁻³ | 0.30 %[^b] |
-| **Full $\mathbf Q$ + Higham**    | 4.26 × 10⁻³ | 0.35 %[^b] |
+| **Baseline – steady-state** (A)  | 9.69 × 10⁻³ | 0.15 %     |
+| **Full $\mathbf Q$**             | 2.35 × 10⁻³ | 0.30 % (B) |
+| **Full $\mathbf Q$ + Higham**    | 4.26 × 10⁻³ | 0.35 % (B) |
 
-[^a]: The “cumulative-sum instead of moving-average” hot-fix is used for better performance.
+(A): The “cumulative-sum instead of moving-average” hot-fix is used for better performance.
 
-[^b]: [^b]: The *time-error-outside-bounds* metric is most informative here, because the width of the confidence band is set by the state-error covariance $\mathbf{Q}$. A larger covariance (often driven by a larger $\mathbf{Q}$) widens the band, making it easier for the estimate to stay inside. Thus the baseline—whose bounds are widest—naturally shows the lowest “outside-bounds” percentage which may not be best, as the figures below illustrate.
+(B): The *time-error-outside-bounds* metric is most informative here, because the width of the confidence band is set by the state-error covariance $\mathbf{Q}$. A larger covariance (often driven by a larger $\mathbf{Q}$) widens the band, making it easier for the estimate to stay inside. Thus the baseline—whose bounds are widest—naturally shows the lowest “outside-bounds” percentage which may not be best, as the figures below illustrate.
 
 
 ---
@@ -93,9 +97,9 @@ Restoring the complete covariance adaptation renders the AEKF **more truthful to
 
 ## References
 
-[^1] Fraser, C. T., & Ulrich, S. (2021). *Adaptive extended Kalman filtering strategies for spacecraft formation relative navigation*. Acta Astronautica, 178, 700–721. https://doi.org/10.1016/j.actaastro.2020.10.016
+ [^1]: Fraser, C. T., & Ulrich, S. (2021). *Adaptive extended Kalman filtering strategies for spacecraft formation relative navigation*. Acta Astronautica, 178, 700–721. https://doi.org/10.1016/j.actaastro.2020.10.016
 
-[^2] *Nonlinear Kalman Filters and Parameter Estimation*, Coursera. Offered by the University of Colorado Boulder. Retrieved from [https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation](https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation)
+[^2]: *Nonlinear Kalman Filters and Parameter Estimation*, Coursera. Offered by the University of Colorado Boulder. Retrieved from [https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation](https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation)
 
 ---
 
