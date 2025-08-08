@@ -11,14 +11,13 @@ Although this avoids negative‐definite updates, it also under‑estimates proc
 
 | Symbol                   | Meaning                                                |
 | ------------------------ | ------------------------------------------------------ |
-| \$\mathbf{K}\_i\$        | Kalman gain at sample \$i\$                            |
-| \$\nu\_i\$               | Innovation (residual) vector at \$i\$                  |
-| \$\mathbf{\Phi}\_{i-1}\$ | Discrete state‑transition matrix from \$i-1\$ to \$i\$ |
-| \$\mathbf{Q}^{+}\_i\$    | A‑posteriori process noise covariance at \$i\$           |
+| \$\mathbf{K}$        | Kalman gain                            |
+| \$\nu\$               | Innovation vector                  |
+| \$\mathbf{\Phi}\$ | Discrete state‑transition matrix |
+| \$\mathbf{Q}^{+}\$    | A‑posteriori process noise covariance            |
 
 ### A)  Common Steady‑State Form (from Eq. 37 [1])
 ![Process Noise Covariance Steady State Assumption](assets/QmatSS.png)
-
 
 This simplification likely serves to preserve the **positive definiteness** of the process noise covariance matrix.  
 
@@ -27,6 +26,8 @@ The full update for the process noise covariance matrix is:
 ![Process Noise Covariance Adaptation](assets/QmatUpdate.png)
 
 However, that “steady-state difference”, exposed with parenthesis, usually stabilize at an application-specific value **greater than zero**.
+
+Both expressions include a N-size moving average $\frac{1}{N} \sum_{i=i_0}^{N}$ required to capture the 'innovation statistics' dictated by the maximum-likelihood derivation (see [1] for details).
 
 ---
 
