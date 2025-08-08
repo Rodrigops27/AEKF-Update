@@ -1,6 +1,6 @@
 # Adaptive Extended Kalman Filter – Full Process Noise Covariance Update
 
-This repository revisits Professor Gregory L. Plett’s Adaptive Extended Kalman Filter (AEKF) implementation [^2] and removes a common steady‑state simplification that many papers apply to the process‑noise covariance adaptation.  By restoring the full expression the filter delivers tighter uncertainty bounds and lower state‑estimation error. To regain numerically stability the positive‑definiteness can be ensured with the nearest symmetric positive‑definite (SPD) matrix using Higham’s method.
+This repository revisits Professor Gregory L. Plett’s Adaptive Extended Kalman Filter (AEKF) implementation [2] and removes a common steady‑state simplification that many papers apply to the process‑noise covariance adaptation.  By restoring the full expression the filter delivers tighter uncertainty bounds and lower state‑estimation error. To regain numerically stability the positive‑definiteness can be ensured with the nearest symmetric positive‑definite (SPD) matrix using Higham’s method.
 
 ---
 
@@ -17,21 +17,14 @@ The full update for the process noise covariance matrix is:
 | \$\mathbf{\Phi}\_{i-1}\$ | Discrete state‑transition matrix from \$i-1\$ to \$i\$ |
 | \$\mathbf{P}^{+}\_i\$    | A‑posteriori state‑error covariance at \$i\$           |
 
-### A)  Common Steady‑State Form (from Eq. 37 [^1])
+### A)  Common Steady‑State Form (from Eq. 37 [1])
+![Process Noise Covariance Steady State Assumption](assets/QmatSS.png)
 
-$
-\hat{\mathbf{Q}}_{k}^{\text{ss}} = \mathbf{K}_{k}
-\nu_i\nu_i^{\top}\mathbf{K}_{k}^{\top}
-$
 
 This simplification likely serves to preserve the **positive definiteness** of the process noise covariance matrix.  
 
-### B)  Full Maximum‑Likelihood Expression Implemented Here (from Eq. 36 [^1])
-
-$$
-\hat{\mathbf{Q}}_{k} = 
-\mathbf{K}_{i} \nu_{i} \nu_{i}^{\top} \mathbf{K}_{i}^{\top} + ( \mathbf{P}^{+}_{i} - \mathbf{\Phi}_{i-1} \mathbf{P}^{+}_{i-1} \mathbf{\Phi}_{i-1}^{\top} )
-$$
+### B)  Full Maximum‑Likelihood Expression Implemented Here (from Eq. 36 [1])
+![Process Noise Covariance Adaptation](assets/QmatUpdate.png)
 
 However, that “steady-state difference”, exposed with parenthesis, usually stabilize at an application-specific value **greater than zero**.
 
@@ -97,9 +90,9 @@ Restoring the complete covariance adaptation renders the AEKF **more truthful to
 
 ## References
 
- [^1]: Fraser, C. T., & Ulrich, S. (2021). *Adaptive extended Kalman filtering strategies for spacecraft formation relative navigation*. Acta Astronautica, 178, 700–721. https://doi.org/10.1016/j.actaastro.2020.10.016
+ [1] Fraser, C. T., & Ulrich, S. (2021). *Adaptive extended Kalman filtering strategies for spacecraft formation relative navigation*. Acta Astronautica, 178, 700–721. https://doi.org/10.1016/j.actaastro.2020.10.016
 
-[^2]: *Nonlinear Kalman Filters and Parameter Estimation*, Coursera. Offered by the University of Colorado Boulder. Retrieved from [https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation](https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation)
+[2] *Nonlinear Kalman Filters and Parameter Estimation*, Coursera. Offered by the University of Colorado Boulder. Retrieved from [https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation](https://www.coursera.org/learn/nonlinear-kalman-filters-parameter-estimation)
 
 ---
 
