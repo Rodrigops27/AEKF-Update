@@ -9,13 +9,12 @@ Adaptive EKF literature assumes that the process noise covariance has reached st
 
 Although this avoids negative‐definite updates, it also under‑estimates process noise and widens the confidence bounds.
 
-The full update for the process noise covariance matrix is:
 | Symbol                   | Meaning                                                |
 | ------------------------ | ------------------------------------------------------ |
 | \$\mathbf{K}\_i\$        | Kalman gain at sample \$i\$                            |
 | \$\nu\_i\$               | Innovation (residual) vector at \$i\$                  |
 | \$\mathbf{\Phi}\_{i-1}\$ | Discrete state‑transition matrix from \$i-1\$ to \$i\$ |
-| \$\mathbf{P}^{+}\_i\$    | A‑posteriori state‑error covariance at \$i\$           |
+| \$\mathbf{Q}^{+}\_i\$    | A‑posteriori process noise covariance at \$i\$           |
 
 ### A)  Common Steady‑State Form (from Eq. 37 [1])
 ![Process Noise Covariance Steady State Assumption](assets/QmatSS.png)
@@ -24,6 +23,7 @@ The full update for the process noise covariance matrix is:
 This simplification likely serves to preserve the **positive definiteness** of the process noise covariance matrix.  
 
 ### B)  Full Maximum‑Likelihood Expression Implemented Here (from Eq. 36 [1])
+The full update for the process noise covariance matrix is:
 ![Process Noise Covariance Adaptation](assets/QmatUpdate.png)
 
 However, that “steady-state difference”, exposed with parenthesis, usually stabilize at an application-specific value **greater than zero**.
